@@ -2,21 +2,38 @@
  const config = JSON.parse(fs.readFileSync("./usercfg/config.json"));
     const tls = require('tls');
     const https = require('https')
+    const bodyParser = require('body-parser')
     const express = require('express');
+    const { StreamUtils, ReadableStreamBuffer, WritableStreamBuffer } = require('./StreamUtils'); 
+    const url = require('url');
+ const binPacker2 = require('./binaryPacker2')
+ const ChunkStream = require('./chunkStream')
+
 const { Console } = require('console');
+const BinaryPacker2 = require('./binaryPacker2');
 
-    const app = express()
+const app = express()
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.text({ type: "text/xml" }));
 
-    app.use(express.json());
-    app.use(express.urlencoded({ extended: true }));
-    app.use(express.text({ type: "text/xml" }));
-    
-    app.use((req, res, next) => {
-        // Log request
-        console.log(`${req.method} ${req.url}`);
-        // Next
-        next();
-    });
+app.use((req, res, next) => {
+    // Log request
+    console.log(`${req.method} ${req.url}`);
+    // Next
+    next();
+});
+
+const platformAccountId = null
+
+const agoraColor = '\x1b[37;46m%s\x1b[0m'
+
+function LogServer(reqres) {
+    // Is request or response?
+    const isRequest = reqres.hasOwnProperty("method");
+    // Log to console
+    console.log(`${isRequest ? reqres.method : reqres.statusMessage} ${isRequest ? reqres.url : reqres.statusCode}`);
+}
     
     let agoraServer = https.createServer({
         key: fs.readFileSync("./usercfg/ssl/ca_key.pem"),
@@ -25,7 +42,31 @@ const { Console } = require('console');
         secureProtocol: 'TLSv1_server_method',
        requestCert: false,
         rejectUnauthorized: false   
-    }, app);
+        
+    }, app,(req,res) => {
+        let data = [];
+      
+        req.on('data', chunk => {
+          data.push(chunk);
+        });
+      
+        req.on('end', () => {
+          // Concatenate all chunks into a single buffer
+          let buffer = Buffer.concat(data);
+      
+          // Log if the incoming data is a buffer
+          if (Buffer.isBuffer(buffer)) {
+            console.log(agoraColor, ('Received buffer:', buffer));
+          } else {
+            console.log('Received data is not a buffer');
+          }
+      
+          // Respond to the client
+          //res.writeHead(200, {'Content-Type': 'text/plain'});
+          //res.end('Data received');
+        });
+      
+      });
 
     let listening = agoraServer.listen(443, () => {
             console.log(`listening on port 443`);
@@ -65,6 +106,7 @@ const { Console } = require('console');
         });
     });
 
+
     //handling requests
 
     app.get('/4680026983694983987/feed/get_channels_by_owner/:id', (req, res) => {
@@ -73,19 +115,25 @@ const { Console } = require('console');
     })
 
     app.get('/4680026983694983987/profile/get_by_platform_account_id/:accountId', (req,res) => {
-        const accountId = req.params.accountId
-        GetByPlatformAccountId(req,res,accountId)
+        platformAccountId = req.params.accountId
+        console.log(agoraColor, "Profile: Get By PlatformAccountId: " + accountId)
     })
 
     app.get('/4680026983694983987/profile/create', (req,res) => {
-        console.log("Attempting to create profile")
+        console.log(agoraColor, "Attempting to create profile")
     })
 
-    function GetByPlatformAccountId(req,res,accountId){
-        console.log("Profile: Get By PlatformAccountId: " + accountId)
-        return;
-    }
+    app.post('/4680026983694983987/profile/convert_platform_account_ids_to_guids', (req,res) => {
+        console.log(agoraColor, "Converting steam friends to GUID list")
+    })
 
+
+    function generateRandomBuffer() {
+        const size = 1; // Adjust the size as needed
+        const buffer = Buffer.alloc(size);
+        buffer.fill(Math.floor(Math.random() * 256)); // Fill buffer with random data
+        return buffer;
+    }
 
     function AgoraInteraction(req, res, id) {
         console.log(`Agora called! id: ${id}`);
@@ -93,18 +141,29 @@ const { Console } = require('console');
 
         switch(id.toString()){
             case "6":
-                console.log("Gangs was called");
-                break;
+                LogServer(req);
+                var buf = Buffer.alloc(3)
+                buf.write("0x02")
+            console.log(agoraColor, "Gangs was called");
+            res.end(buf)
+            LogServer(res)
+            break;
             case "15":
-                console.log("Attempting to read EULA")
+                console.log(agoraColor, "Attempting to read EULA")
                 break;
             case "16":
-                console.log("Attempting to read Terms of Service")
+                console.log(agoraColor, "Attempting to read Terms of Service")
                 break;
             case "17":
-                console.log("Attempting to read Privacy Policy")
+                console.log(agoraColor, "Attempting to read Privacy Policy")
                 break;
             default:
-                console.log("Unable to read order Id");
+                console.log(agoraColor, "Unable to read order Id");
         }
     }
+
+
+    //////////////////////////////////
+
+
+
