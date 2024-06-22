@@ -26,6 +26,21 @@ app.use((req, res, next) => {
 
 const platformAccountId = null
 
+const AG_NONE_TYPE = 1;
+const AG_INT32_TYPE = 2;
+const AG_BINARY_TYPE = 3;
+const AG_BOOL_TYPE = 4;
+const AG_UBYTE_TYPE = 5;
+const AG_FLOAT64_TYPE = 6;
+const AG_DATETIME_TYPE = 7;
+const AG_ARRAY_TYPE = 8;
+const AG_STRUCT_TYPE = 9;
+const AG_INT64_TYPE = 10;
+const AG_BITSTRUCT_TYPE = 11;
+const AG_HASHMAP_TYPE = 12;
+const AG_UINT64_TYPE = 13;
+const AG_UTF8STRING_TYPE = 14;
+
 const agoraColor = '\x1b[37;46m%s\x1b[0m'
 
 function LogServer(reqres) {
