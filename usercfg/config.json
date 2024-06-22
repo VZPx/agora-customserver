@@ -1,17 +1,17 @@
 {
-    "host": {
-        "http_port": 80,
-        "https_port": 443,
-        "https_enabled": false,
-        "localhost_passthrough_port": 443,
-        "localhost_passthrough_enabled": true,
-        "https_key": "./ssl/key.pem",
-        "https_cert": "./ssl/cert.pem",
-        "keepalive_timeout": 5
-    },
-    "database": {
-        "path": "./database.db",
-        "wipe_on_start": false
-    },
-    "debug": true
+  "host": {
+    "http_port": 80,
+    "https_port": 443,
+    "https_enabled": false,
+    "localhost_passthrough_port": 443,
+    "localhost_passthrough_enabled": true,
+    "https_key": "./ssl/key.pem",
+    "https_cert": "./ssl/cert.pem",
+    "keepalive_timeout": 5
+  },
+  "database": {
+    "path": "./database.db",
+    "wipe_on_start": false
+  },
+  "debug": true
 }

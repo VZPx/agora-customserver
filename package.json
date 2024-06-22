@@ -4,7 +4,8 @@
   "description": "A custom authentication server for Batman: Arkham Origins Online.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "start:dev": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -24,5 +25,8 @@
     "geoip-lite": "^1.4.7",
     "uuid-by-string": "^4.0.0",
     "xml-js": "^1.6.11"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
   }
 }
