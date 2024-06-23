@@ -1,6 +1,7 @@
 const fs = require("fs");
 const https = require("https");
 const express = require("express");
+const path = require("path");
 
 const { Console } = require("console");
 const BinaryPacker = require("./binaryPacker");
@@ -12,9 +13,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.text({ type: "text/xml" }));
 
+const binDir = path.join(__dirname, "bin");
+
+if (!fs.existsSync(binDir)) {
+    fs.mkdirSync(binDir);
+}
+
 app.use((req, res, next) => {
   // Log request
   console.log(`${req.method} ${req.url}`);
+  
+    if (req.headers["content-type"] === "application/x-hydra-binary") {
+        console.log("Received binary data");
+        const endpoint = req.url.split("/").pop();
+        fs.writeFileSync(path.join(binDir, `${endpoint}.bin`), req.body);
+    }
+    
   // Next
   next();
 });
