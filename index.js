@@ -9,15 +9,6 @@ const BinaryPacker = require("./binaryPacker");
 const app = express();
 
 app.use(express.raw({ type: "application/x-hydra-binary" })); // Parse binary data
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.text({ type: "text/xml" }));
-
-const binDir = path.join(__dirname, "bin");
-
-if (!fs.existsSync(binDir)) {
-    fs.mkdirSync(binDir);
-}
 
 app.use((req, res, next) => {
   // Log request
@@ -32,6 +23,18 @@ app.use((req, res, next) => {
   // Next
   next();
 });
+
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+// app.use(express.text({ type: "text/xml" }));
+
+const binDir = path.join(__dirname, "bin");
+
+if (!fs.existsSync(binDir)) {
+    fs.mkdirSync(binDir);
+}
+
+
 
 let platformAccountId = null;
 const agoraColor = "\x1b[37;46m%s\x1b[0m";
